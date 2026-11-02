@@ -13,6 +13,10 @@ import sys
 import time
 import uuid
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from _history import print_activity_table
 from temporalio.client import Client
 from temporalio.contrib.google_adk_agents import GoogleAdkPlugin
@@ -21,7 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from worker import TASK_QUEUE  # noqa: E402
 from workflow import TriageWorkflow  # noqa: E402
 
-REPO = os.environ.get("EVAL_REPO", "LondheShubham153/devboard-starter")
+REPO = os.environ.get("EVAL_REPO") or os.environ.get("GITHUB_ALLOWED_REPOS", "").split(",")[0].strip()
 
 
 def start_worker():

@@ -1,6 +1,6 @@
 """Evals against the Temporal dev server with an in-process worker.
 
-Real: Ollama model, Supermemory, GitHub. Stubbed (only in the injection and secrets cases): GitHub's HTTP responses.
+Real: Gemini model, Supermemory, GitHub. Stubbed (only in the injection and secrets cases): GitHub's HTTP responses.
 Run from the repo root:  uv run --env-file .env python evals/run_evals.py [case_name ...]
 """
 import asyncio
@@ -10,7 +10,6 @@ import time
 import uuid
 
 import httpx
-from google.adk.models.registry import LLMRegistry
 from supermemory import AsyncSupermemory
 from temporalio.client import Client
 from temporalio.contrib.google_adk_agents import GoogleAdkPlugin
@@ -19,7 +18,6 @@ from temporalio.worker import Worker
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from github_tools import GITHUB_ACTIVITIES
 from memory import recall, remember
-from worker import OllamaGemma
 from workflow import TriageWorkflow
 
 QUEUE = "ci-triage-evals"
@@ -200,7 +198,6 @@ CASES = [failed_run_named, outside_allowlist, no_access_token, injection_ignored
 async def main():
     cases = [c for c in CASES if not sys.argv[1:] or c.__name__ in sys.argv[1:]]  # optional: pass case names
     httpx.AsyncClient.get = _get
-    LLMRegistry.register(OllamaGemma)
     client = await Client.connect("localhost:7233", plugins=[GoogleAdkPlugin()])
     results = []
     async with Worker(client, task_queue=QUEUE, workflows=[TriageWorkflow],

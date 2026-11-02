@@ -9,9 +9,13 @@ from safety import redact, wrap
 
 async def gh_get(repo: str, path: str):
     """GET a repo-scoped REST path. Returns (response, None) or (None, short message for the model)."""
-    if repo not in [r.strip() for r in os.environ["GITHUB_ALLOWED_REPOS"].split(",")]:
+    allowed = [r.strip() for r in os.environ.get("GITHUB_ALLOWED_REPOS", "").split(",") if r.strip()]
+    if not allowed or repo not in allowed:
         return None, f"Repo '{repo}' is not in the allowed list; I can't access it."
-    headers = {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
+    token = os.environ.get("GITHUB_TOKEN", "")
+    if not token:
+        return None, "GITHUB_TOKEN is missing or not configured."
+    headers = {"Authorization": f"Bearer {token}",
                "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"}
     async with httpx.AsyncClient(follow_redirects=True, timeout=20) as c:  # logs redirect to a blob URL
         r = await c.get(f"https://api.github.com/repos/{repo}/{path}", headers=headers)

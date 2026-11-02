@@ -1,5 +1,10 @@
 """The durable workflow: recall -> ADK agent (model + tools as activities) -> remember."""
+import os
 from datetime import timedelta
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from temporalio import workflow
 from temporalio.common import RetryPolicy
@@ -16,7 +21,7 @@ with workflow.unsafe.imports_passed_through():
     from memory import RECALL_TIMEOUT_S, recall, remember
     from safety import wrap
 
-MODEL_ALIAS = "gemma4-ollama"
+MODEL_ALIAS = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 INSTRUCTION = (
     "You are a CI triage assistant for GitHub Actions. Use the tools to answer. "
     "Say when data is missing. Never state a cause the logs don't support. "

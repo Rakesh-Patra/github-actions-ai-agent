@@ -7,7 +7,7 @@
   <img alt="Temporal SDK 1.34" src="https://img.shields.io/badge/temporalio-1.34.0-7c3aed">
   <img alt="Google ADK 2.12" src="https://img.shields.io/badge/google--adk-2.12.0-34a853">
   <img alt="Supermemory 5" src="https://img.shields.io/badge/supermemory-5.0.0-ec4899">
-  <img alt="Gemma 4 on Ollama" src="https://img.shields.io/badge/model-gemma4%20on%20Ollama-0ea5e9">
+  <img alt="Gemini" src="https://img.shields.io/badge/model-Gemini-0ea5e9">
   <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-lightgrey">
 </p>
 
@@ -57,21 +57,18 @@ The red bar is a model call that was interrupted and retried:
 
 ## Quickstart
 
-You need [uv](https://docs.astral.sh/uv/), the [Temporal CLI](https://docs.temporal.io/cli), [Ollama](https://ollama.com),
+You need [uv](https://docs.astral.sh/uv/), the [Temporal CLI](https://docs.temporal.io/cli), a [Gemini API key](https://aistudio.google.com/),
 Google Chrome (only for regenerating screenshots), a [Supermemory](https://supermemory.ai) API key, and a GitHub token
 with **Actions: read-only**.
 
 ```bash
 # 1. Install
 uv sync
-ollama pull gemma4
-ollama show gemma4                  # Capabilities must list "tools" and "thinking"
 
 # 2. Configure (never commit .env)
-cp .env.example .env                # then fill in SUPERMEMORY_API_KEY, GITHUB_TOKEN, GITHUB_ALLOWED_REPOS
+cp .env.example .env                # then fill in GEMINI_API_KEY, SUPERMEMORY_API_KEY, GITHUB_TOKEN, GITHUB_ALLOWED_REPOS
 
 # 3. Run, in separate terminals
-ollama serve                                         # skip if Ollama is already running
 temporal server start-dev                            # UI at http://localhost:8233
 uv run --env-file .env python worker.py
 uv run --env-file .env python ask.py alice "what failed recently on owner/repo?"
@@ -168,11 +165,11 @@ All settings live in `.env` (see [`.env.example`](.env.example)).
 
 | Variable | Default | Meaning |
 |---|---|---|
+| `GEMINI_API_KEY` | required | Gemini API key |
+| `GEMINI_MODEL` | `gemini-2.5-flash` | Gemini model to use |
 | `SUPERMEMORY_API_KEY` | required | Supermemory key |
 | `GITHUB_TOKEN` | required | Fine-grained token, Actions: read-only |
 | `GITHUB_ALLOWED_REPOS` | required | Comma-separated `owner/repo` the agent may read |
-| `OLLAMA_API_BASE` | `http://localhost:11434` | Where Ollama is |
-| `OLLAMA_MODEL` | `gemma4` | Which Ollama model to use |
 | `SM_DREAMING` | `dynamic` in code, `instant` in `.env.example` | Memory extraction mode |
 | `RECALL_TIMEOUT_S` | `5` | Seconds before recall gives up and continues without memory |
 | `EVAL_REPO` | first allowed repo | Repo the evals ask about |
@@ -195,7 +192,7 @@ CLAUDE.md    context for AI coding assistants: rules, gotchas, how to recreate t
 
 ```bash
 uv run pytest -q                                        # offline, instant
-uv run --env-file .env python evals/run_evals.py        # ~20 min, needs Ollama, Temporal, both keys
+uv run --env-file .env python evals/run_evals.py        # ~20 min, needs Gemini, Temporal, keys
 uv run --env-file .env python evals/run_evals.py multi_step_real   # one case
 ```
 

@@ -4,6 +4,10 @@ import os
 import sys
 import uuid
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from temporalio.client import Client
 from temporalio.contrib.google_adk_agents import GoogleAdkPlugin
 
